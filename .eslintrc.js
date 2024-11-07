@@ -3,14 +3,8 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: [
-    "eslint:recommended",
-    "airbnb-base",
-    "prettier",
-    "plugin:@typescript-eslint/recommended",
-  ],
-  parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint"],
+  extends: ["eslint:recommended", "airbnb-base", "prettier"],
+
   overrides: [
     {
       env: {
@@ -29,6 +23,5 @@ module.exports = {
   rules: {
     "no-console": ["error", { allow: ["warn"] }],
     "no-underscore-dangle": ["error", { allow: ["foo_", "_bar"] }],
-    "@typescript-eslint/no-var-requires": "off",
   },
 };
