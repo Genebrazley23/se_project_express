@@ -12,19 +12,20 @@ const createItem = (req, res) => {
       .json({ message: "All fields (name, weather, imageUrl) are required." });
   }
 
-  ClothingItem.create({ name, weather, imageUrl })
+  return ClothingItem.create({ name, weather, imageUrl }) // Ensure return here
     .then((item) => res.status(201).json({ data: item }))
-    .catch((e) =>
-      e.name === "ValidationError"
-        ? res.status(400).json({ message: e.message })
-        : res
-            .status(500)
-            .json({ message: "Error creating item", error: e.message }),
-    );
+    .catch((e) => {
+      if (e.name === "ValidationError") {
+        return res.status(400).json({ message: e.message });
+      }
+      return res
+        .status(500)
+        .json({ message: "Error creating item", error: e.message });
+    });
 };
 
 const getItems = (req, res) => {
-  ClothingItem.find()
+  return ClothingItem.find() // Ensure return here
     .then((items) => res.status(200).json({ data: items }))
     .catch((e) =>
       res
@@ -41,7 +42,11 @@ const updateItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
+  return ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $set: { imageUrl } },
+    { new: true },
+  ) // Ensure return here
     .then((item) =>
       item
         ? res.status(200).json({ data: item })
@@ -61,7 +66,7 @@ const deleteItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findByIdAndDelete(itemId) // Ensure return here
     .then((item) =>
       item
         ? res
@@ -83,11 +88,11 @@ const likeItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
+  ) // Ensure return here
     .then((item) =>
       item
         ? res.status(200).json({ data: item })
@@ -105,11 +110,11 @@ const dislikeItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  )
+  ) // Ensure return here
     .then((item) =>
       item
         ? res.status(200).json({ data: item })
