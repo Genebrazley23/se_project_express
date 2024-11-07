@@ -1,5 +1,5 @@
-const ClothingItem = require("../models/clothingItem");
 const mongoose = require("mongoose");
+const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -11,9 +11,7 @@ const createItem = (req, res) => {
   }
 
   return ClothingItem.create({ name, weather, imageUrl })
-    .then((item) => {
-      return res.status(201).send({ data: item });
-    })
+    .then((item) => res.status(201).send({ data: item }))
     .catch((e) => {
       if (e.name === "ValidationError") {
         return res.status(400).send({ message: e.message });
@@ -26,9 +24,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   return ClothingItem.find()
-    .then((items) => {
-      return res.status(200).send({ data: items });
-    })
+    .then((items) => res.status(200).send({ data: items }))
     .catch((e) => {
       return res
         .status(500)
@@ -47,7 +43,7 @@ const updateItem = (req, res) => {
   return ClothingItem.findByIdAndUpdate(
     itemId,
     { $set: { imageUrl } },
-    { new: true }
+    { new: true },
   )
     .then((item) => {
       if (!item) {
@@ -95,7 +91,7 @@ const likeItem = (req, res) => {
   return ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((item) => {
       if (!item) {
@@ -120,7 +116,7 @@ const dislikeItem = (req, res) => {
   return ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .then((item) => {
       if (!item) {
