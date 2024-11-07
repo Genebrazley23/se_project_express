@@ -5,7 +5,6 @@ const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
     .catch((err) => {
-      console.error(err);
       return res.status(500).send({ message: err.message });
     });
 };
@@ -37,17 +36,16 @@ const createUser = async (req, res) => {
 
   try {
     const user = await User.create(req.body);
-    res.status(201).json(user);
+    return res.status(201).json(user);
   } catch (error) {
     if (error.name === "ValidationError") {
-      res
+      return res
         .status(BAD_REQUEST)
         .json({ message: "ValidationError", error: error.message });
-    } else {
-      res
-        .status(SERVER_ERROR)
-        .json({ message: "Server error", error: error.message });
     }
+    return res
+      .status(SERVER_ERROR)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -58,10 +56,10 @@ const getUser = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: "User not found" });
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
-      console.error(err);
+      // Removed console.error to follow ESLint rules
       if (err.name === "DocumentNotFoundError") {
         return res.status(404).send({ message: "User not found" });
       } else if (err.name === "CastError") {

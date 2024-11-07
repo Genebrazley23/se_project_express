@@ -2,7 +2,6 @@ const ClothingItem = require("../models/clothingItem");
 const mongoose = require("mongoose");
 
 const createItem = (req, res) => {
-  console.log(req.user); // If you still need this for debugging
   const { name, weather, imageUrl } = req.body;
 
   if (!name || !weather || !imageUrl) {
@@ -11,7 +10,7 @@ const createItem = (req, res) => {
       .send({ message: "All fields (name, weather, imageUrl) are required." });
   }
 
-  ClothingItem.create({ name, weather, imageUrl })
+  return ClothingItem.create({ name, weather, imageUrl })
     .then((item) => {
       return res.status(201).send({ data: item });
     })
@@ -26,7 +25,7 @@ const createItem = (req, res) => {
 };
 
 const getItems = (req, res) => {
-  ClothingItem.find()
+  return ClothingItem.find()
     .then((items) => {
       return res.status(200).send({ data: items });
     })
@@ -41,7 +40,15 @@ const updateItem = (req, res) => {
   const { itemId } = req.params;
   const { imageUrl } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid item ID" });
+  }
+
+  return ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $set: { imageUrl } },
+    { new: true }
+  )
     .then((item) => {
       if (!item) {
         return res.status(404).send({ message: "Item not found" });
@@ -62,7 +69,7 @@ const deleteItem = (req, res) => {
     return res.status(400).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findByIdAndDelete(itemId)
     .then((item) => {
       if (!item) {
         return res.status(404).send({ message: "Item not found" });
@@ -85,7 +92,7 @@ const likeItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
@@ -110,7 +117,7 @@ const dislikeItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
