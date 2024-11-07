@@ -3,7 +3,14 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ["eslint:recommended", "airbnb-base", "prettier"],
+  extends: [
+    "eslint:recommended",
+    "airbnb-base",
+    "prettier",
+    "plugin:@typescript-eslint/recommended",
+  ],
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
   overrides: [
     {
       env: {
