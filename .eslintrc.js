@@ -23,5 +23,6 @@ module.exports = {
   rules: {
     "no-console": ["error", { allow: ["warn"] }],
     "no-underscore-dangle": ["error", { allow: ["foo_", "_bar"] }],
+    "consistent-return": "error",
   },
 };

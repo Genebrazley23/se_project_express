@@ -2,7 +2,7 @@ const ClothingItem = require("../models/clothingItem");
 const mongoose = require("mongoose");
 
 const createItem = (req, res) => {
-  console.log(req.user);
+  console.log(req.user); // If you still need this for debugging
   const { name, weather, imageUrl } = req.body;
 
   if (!name || !weather || !imageUrl) {
@@ -13,13 +13,13 @@ const createItem = (req, res) => {
 
   ClothingItem.create({ name, weather, imageUrl })
     .then((item) => {
-      res.status(201).send({ data: item });
+      return res.status(201).send({ data: item });
     })
     .catch((e) => {
       if (e.name === "ValidationError") {
         return res.status(400).send({ message: e.message });
       }
-      res
+      return res
         .status(500)
         .send({ message: "Error from createItem", error: e.message });
     });
@@ -28,10 +28,10 @@ const createItem = (req, res) => {
 const getItems = (req, res) => {
   ClothingItem.find()
     .then((items) => {
-      res.status(200).send({ data: items });
+      return res.status(200).send({ data: items });
     })
     .catch((e) => {
-      res
+      return res
         .status(500)
         .send({ message: "Error retrieving items", error: e.message });
     });
@@ -46,10 +46,10 @@ const updateItem = (req, res) => {
       if (!item) {
         return res.status(404).send({ message: "Item not found" });
       }
-      res.status(200).send({ data: item });
+      return res.status(200).send({ data: item });
     })
     .catch((e) => {
-      res
+      return res
         .status(500)
         .send({ message: "Error updating item", error: e.message });
     });
@@ -67,13 +67,12 @@ const deleteItem = (req, res) => {
       if (!item) {
         return res.status(404).send({ message: "Item not found" });
       }
-
-      res
+      return res
         .status(200)
         .send({ message: "Item deleted successfully", data: item });
     })
     .catch((e) => {
-      res
+      return res
         .status(500)
         .send({ message: "Error deleting item", error: e.message });
     });
@@ -95,10 +94,12 @@ const likeItem = (req, res) => {
       if (!item) {
         return res.status(404).json({ message: "Item not found" });
       }
-      res.status(200).json({ data: item });
+      return res.status(200).json({ data: item });
     })
     .catch((e) => {
-      res.status(500).json({ message: "Error liking item", error: e.message });
+      return res
+        .status(500)
+        .json({ message: "Error liking item", error: e.message });
     });
 };
 
@@ -118,10 +119,10 @@ const dislikeItem = (req, res) => {
       if (!item) {
         return res.status(404).json({ message: "Item not found" });
       }
-      res.status(200).json({ data: item });
+      return res.status(200).json({ data: item });
     })
     .catch((e) => {
-      res
+      return res
         .status(500)
         .json({ message: "Error unliking item", error: e.message });
     });
