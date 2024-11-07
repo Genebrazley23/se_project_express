@@ -22,5 +22,6 @@ module.exports = {
   rules: {
     "no-console": ["error", { allow: ["warn"] }],
     "no-underscore-dangle": ["error", { allow: ["foo_", "_bar"] }],
+    "@typescript-eslint/no-var-requires": "off",
   },
 };

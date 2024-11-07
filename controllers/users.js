@@ -1,5 +1,5 @@
-const user = require("../models/user");
 const User = require("../models/user");
+const { BAD_REQUEST, SERVER_ERROR } = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find({})
@@ -12,23 +12,27 @@ const getUsers = (req, res) => {
 
 const createUser = async (req, res) => {
   if (!req.body.name) {
-    return res.status(400).json({ message: "The 'name' field is required." });
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "The 'name' field is required." });
   }
 
   if (req.body.name.length < 2) {
-    return res.status(400).json({
+    return res.status(BAD_REQUEST).json({
       message: "The 'name' field must be at least 2 characters long.",
     });
   }
 
   if (req.body.name.length > 30) {
     return res
-      .status(400)
+      .status(BAD_REQUEST)
       .json({ message: "The 'name' field must be 30 characters or fewer." });
   }
 
   if (!req.body.avatar) {
-    return res.status(400).json({ message: "The 'avatar' field is required." });
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "The 'avatar' field is required." });
   }
 
   try {
@@ -37,10 +41,12 @@ const createUser = async (req, res) => {
   } catch (error) {
     if (error.name === "ValidationError") {
       res
-        .status(400)
+        .status(BAD_REQUEST)
         .json({ message: "ValidationError", error: error.message });
     } else {
-      res.status(500).json({ message: "Server error", error: error.message });
+      res
+        .status(SERVER_ERROR)
+        .json({ message: "Server error", error: error.message });
     }
   }
 };

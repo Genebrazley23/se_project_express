@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   req.user = {
-    _id: "6729810b78a36130fb2e93dd", // paste the _id of the test user created in the previous step
+    _id: "6729810b78a36130fb2e93dd",
   };
   next();
 });
