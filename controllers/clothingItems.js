@@ -12,27 +12,25 @@ const createItem = (req, res) => {
       .json({ message: "All fields (name, weather, imageUrl) are required." });
   }
 
-  return ClothingItem.create({ name, weather, imageUrl }) // Ensure return here
+  return ClothingItem.create({ name, weather, imageUrl })
     .then((item) => res.status(201).json({ data: item }))
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        return res.status(400).json({ message: e.message });
-      }
-      return res
-        .status(500)
-        .json({ message: "Error creating item", error: e.message });
-    });
+    .catch((e) =>
+      e.name === "ValidationError"
+        ? res.status(400).json({ message: e.message })
+        : res
+            .status(500)
+            .json({ message: "Error creating item", error: e.message }),
+    );
 };
 
-const getItems = (req, res) => {
-  return ClothingItem.find()
+const getItems = (req, res) =>
+  ClothingItem.find()
     .then((items) => res.status(200).json({ data: items }))
     .catch((e) =>
       res
         .status(500)
         .json({ message: "Error retrieving items", error: e.message }),
     );
-};
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
