@@ -3,7 +3,7 @@ const { BAD_REQUEST, SERVER_ERROR } = require("../utils/errors");
 
 const getUsers = (req, res) =>
   User.find({})
-    .then((users) => res.send(users))
+    .then(res.send)
     .catch((err) => res.status(500).send({ message: err.message }));
 
 const createUser = async (req, res) => {

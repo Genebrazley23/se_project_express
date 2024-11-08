@@ -25,7 +25,7 @@ const createItem = (req, res) => {
 };
 
 const getItems = (req, res) => {
-  return ClothingItem.find() // Ensure return here
+  return ClothingItem.find()
     .then((items) => res.status(200).json({ data: items }))
     .catch((e) =>
       res
@@ -46,7 +46,7 @@ const updateItem = (req, res) => {
     itemId,
     { $set: { imageUrl } },
     { new: true },
-  ) // Ensure return here
+  )
     .then((item) =>
       item
         ? res.status(200).json({ data: item })
@@ -66,7 +66,7 @@ const deleteItem = (req, res) => {
     return res.status(400).json({ message: "Invalid item ID" });
   }
 
-  return ClothingItem.findByIdAndDelete(itemId) // Ensure return here
+  return ClothingItem.findByIdAndDelete(itemId)
     .then((item) =>
       item
         ? res
@@ -92,7 +92,7 @@ const likeItem = (req, res) => {
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ) // Ensure return here
+  )
     .then((item) =>
       item
         ? res.status(200).json({ data: item })
@@ -114,7 +114,7 @@ const dislikeItem = (req, res) => {
     itemId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ) // Ensure return here
+  )
     .then((item) =>
       item
         ? res.status(200).json({ data: item })
