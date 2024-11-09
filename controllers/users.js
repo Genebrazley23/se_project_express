@@ -1,68 +1,74 @@
 const User = require("../models/user");
-const { BAD_REQUEST, SERVER_ERROR } = require("../utils/errors");
+const { BAD_REQUEST, SERVER_ERROR, NOT_FOUND } = require("../utils/errors");
 
 const getUsers = (req, res) =>
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() =>
+      res
+        .status(SERVER_ERROR)
+        .json({ message: "An error has occurred on the server." }),
+    );
 
 const createUser = async (req, res) => {
-  if (!req.body.name) {
+  const { name, avatar } = req.body;
+
+  if (!name) {
     return res
       .status(BAD_REQUEST)
       .json({ message: "The 'name' field is required." });
   }
 
-  if (req.body.name.length < 2) {
+  if (name.length < 2) {
     return res.status(BAD_REQUEST).json({
       message: "The 'name' field must be at least 2 characters long.",
     });
   }
 
-  if (req.body.name.length > 30) {
+  if (name.length > 30) {
     return res
       .status(BAD_REQUEST)
       .json({ message: "The 'name' field must be 30 characters or fewer." });
   }
 
-  if (!req.body.avatar) {
+  if (!avatar) {
     return res
       .status(BAD_REQUEST)
       .json({ message: "The 'avatar' field is required." });
   }
 
   try {
-    const user = await User.create(req.body);
+    const user = await User.create({ name, avatar });
     return res.status(201).json(user);
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(BAD_REQUEST)
-        .json({ message: "ValidationError", error: error.message });
+        .json({ message: "Invalid data provided." });
     }
     return res
       .status(SERVER_ERROR)
-      .json({ message: "Server error", error: error.message });
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
 const getUser = (req, res) => {
   const { userId } = req.params;
+
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User not found" });
+        return res.status(NOT_FOUND).json({ message: "User not found." });
       }
-      return res.status(200).send(user);
+      return res.status(200).json(user);
     })
     .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "User not found" });
-      }
       if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid user ID" });
+        return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .json({ message: "An error has occurred on the server." });
     });
 };
 
