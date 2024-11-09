@@ -36,29 +36,6 @@ const getItems = (req, res) =>
       res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE }),
     );
 
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
-
-  if (!isValidObjectId(itemId)) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
-  }
-
-  return ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $set: { imageUrl } },
-    { new: true },
-  )
-    .then((item) =>
-      item
-        ? res.status(200).json({ data: item })
-        : res.status(NOT_FOUND).json({ message: "Item not found" }),
-    )
-    .catch(() =>
-      res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE }),
-    );
-};
-
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -126,7 +103,6 @@ const dislikeItem = (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   likeItem,
   dislikeItem,
