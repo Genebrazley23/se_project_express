@@ -1,6 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+
 const mainRouter = require("./routes/index");
+const { login, createUser } = require("./controllers/users.js"); 
+
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -14,16 +18,16 @@ mongoose
   })
   .catch(console.error);
 
+app.use(cors());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "6729810b78a36130fb2e93dd",
-  };
-  next();
-});
+
+app.post("/signin", login);
+app.post("/signup", createUser);
+
 
 app.use("/", mainRouter);
+
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
 });
