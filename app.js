@@ -11,13 +11,15 @@ const { PORT = 3001, DB_URI = "mongodb://127.0.0.1:27017/wtwr_db" } =
   process.env;
 
 mongoose.set("strictQuery", true);
-
 mongoose
   .connect(DB_URI, {})
   .then(() => {
     console.log("Connected to DB");
   })
-  .catch(console.error);
+  .catch((err) => {
+    console.error("Database connection error:", err);
+    process.exit(1);
+  });
 
 app.use(cors());
 app.use(express.json());
@@ -33,7 +35,7 @@ app.use((req, res, next) => {
   if (!req.user || !req.user._id) {
     return res.status(BAD_REQUEST).json({ error: "User ID is required" });
   }
-  next();
+  return next();
 });
 
 app.post("/signin", login);
