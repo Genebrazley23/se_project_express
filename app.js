@@ -24,7 +24,6 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-// Middleware to set req.user
 app.use((req, res, next) => {
   req.user = {
     _id: "5d8b8592978f8bd833ca8133",
@@ -44,7 +43,6 @@ app.post("/signup", createUser);
 
 app.use("/", mainRouter);
 
-// Global error handling middleware
 app.use((err, req, res) => {
   console.error(err.stack);
   res.status(SERVER_ERROR).json({ message: "Something went wrong!" });
