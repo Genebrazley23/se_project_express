@@ -1,30 +1,44 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const validator = require("validator"); 
+const validator = require("validator");
 const User = require("../models/user");
-const { BAD_REQUEST, SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, CONFLICT } = require("../utils/errors");
+const {
+  BAD_REQUEST,
+  SERVER_ERROR,
+  NOT_FOUND,
+  UNAUTHORIZED,
+  CONFLICT,
+} = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name || name.length < 2 || name.length > 30) {
+    let message;
+    if (name.length < 2) {
+      message = "The 'name' field must be at least 2 characters long.";
+    } else if (name.length > 30) {
+      message = "The 'name' field must be 30 characters or fewer.";
+    } else if (!name) {
+      message = "The 'name' field is required.";
+    }
     return res.status(BAD_REQUEST).json({
-      message: name
-        ? name.length < 2
-          ? "The 'name' field must be at least 2 characters long."
-          : "The 'name' field must be 30 characters or fewer."
-        : "The 'name' field is required.",
+      message: message,
     });
   }
 
   if (!avatar) {
-    return res.status(BAD_REQUEST).json({ message: "The 'avatar' field is required." });
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "The 'avatar' field is required." });
   }
 
   if (!email || !validator.isEmail(email)) {
     return res.status(BAD_REQUEST).json({
-      message: email ? "Please provide a valid email address." : "The 'email' field is required.",
+      message: email
+        ? "Please provide a valid email address."
+        : "The 'email' field is required.",
     });
   }
 
@@ -46,11 +60,13 @@ const createUser = async (req, res) => {
     });
     const userResponse = user.toObject();
     delete userResponse.password;
-    
+
     return res.status(200).json({ data: userResponse });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(CONFLICT).json({ message: "A user with this email already exists." });
+      return res
+        .status(CONFLICT)
+        .json({ message: "A user with this email already exists." });
     }
     if (error.name === "ValidationError") {
       return res.status(BAD_REQUEST).json({
@@ -58,14 +74,17 @@ const createUser = async (req, res) => {
         errors: error.errors,
       });
     }
-    return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
+    return res
+      .status(SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
 const getMe = (req, res) => {
   const userId = req.user._id;
 
-  User.findById(userId).select('-password') 
+  User.findById(userId)
+    .select("-password")
     .then((user) => {
       if (!user) {
         return res.status(NOT_FOUND).json({ message: "User not found." });
@@ -76,7 +95,9 @@ const getMe = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
-      return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
+      return res
+        .status(SERVER_ERROR)
+        .json({ message: "An error has occurred on the server." });
     });
 };
 
@@ -87,12 +108,12 @@ const updateMe = (req, res) => {
   User.findByIdAndUpdate(
     userId,
     { $set: { name, avatar } },
-    { new: true, runValidators: true, select: '-password' } 
+    { new: true, runValidators: true, select: "-password" },
   )
-    .then((user) => 
+    .then((user) =>
       user
         ? res.status(200).json({ data: user })
-        : res.status(NOT_FOUND).json({ message: "User not found" })
+        : res.status(NOT_FOUND).json({ message: "User not found" }),
     )
     .catch((error) => {
       if (error.name === "ValidationError") {
@@ -109,25 +130,35 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).json({ message: "Email and password are required." });
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "Email and password are required." });
   }
 
   try {
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return res.status(UNAUTHORIZED).json({ message: "Incorrect email or password." });
+      return res
+        .status(UNAUTHORIZED)
+        .json({ message: "Incorrect email or password." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(UNAUTHORIZED).json({ message: "Incorrect email or password." });
+      return res
+        .status(UNAUTHORIZED)
+        .json({ message: "Incorrect email or password." });
     }
 
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-    return res.status(200).json({ message: "Authentication successful", token });
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+    return res
+      .status(200)
+      .json({ message: "Authentication successful", token });
   } catch (error) {
     console.log(error);
-    return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
+    return res
+      .status(SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
