@@ -29,10 +29,14 @@ const createItem = async (req, res) => {
     return res.status(201).json({ data: item });
   } catch (e) {
     if (e.name === "ValidationError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid data provided." });
+      return res
+        .status(BAD_REQUEST)
+        .json({ message: "Invalid data provided." });
     }
     console.error("Error creating item:", e);
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
 
@@ -42,36 +46,40 @@ const getItems = async (req, res) => {
     return res.status(200).json({ data: items });
   } catch (e) {
     console.error("Error retrieving items:", e);
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
 
 const deleteItem = async (req, res) => {
-  
-
   const { itemId } = req.params;
 
   if (!isValidObjectId(itemId)) {
-   
     return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
   }
 
   try {
     const item = await ClothingItem.findById(itemId);
     if (!item) {
-
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
 
     if (item.owner.toString() !== req.user._id.toString()) {
-      return res.status(FORBIDDEN).json({ message: "You are not authorized to delete this item" });
+      return res
+        .status(FORBIDDEN)
+        .json({ message: "You are not authorized to delete this item" });
     }
 
     await ClothingItem.findByIdAndDelete(itemId);
-    return res.status(200).json({ message: "Item deleted successfully", data: item });
+    return res
+      .status(200)
+      .json({ message: "Item deleted successfully", data: item });
   } catch (e) {
     console.error("Error deleting item:", e);
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
 
@@ -93,7 +101,9 @@ const likeItem = async (req, res) => {
       : res.status(NOT_FOUND).json({ message: "Item not found" });
   } catch (e) {
     console.error("Error liking item:", e);
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
 
@@ -115,7 +125,9 @@ const dislikeItem = async (req, res) => {
       : res.status(NOT_FOUND).json({ message: "Item not found" });
   } catch (e) {
     console.error("Error disliking item:", e);
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: SERVER_ERROR_MESSAGE });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
 

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const { UNAUTHORIZED } = require("../utils/errors");
+const { BAD_REQUEST } = require("../utils/errors");
 
 const auth = (req, res, next) => {
   const { headers } = req;
@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
 
   if (!authorization) {
     return res
-      .status(UNAUTHORIZED)
+      .status(BAD_REQUEST)
       .json({ message: "No authorization header found" });
   }
 
