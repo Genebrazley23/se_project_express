@@ -31,7 +31,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   if (!req.user || !req.user._id) {
     return res.status(BAD_REQUEST).json({ error: "User ID is required" });
   }
