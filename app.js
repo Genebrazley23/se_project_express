@@ -24,6 +24,7 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
+// Middleware to set req.user
 app.use((req, res, next) => {
   req.user = {
     _id: "5d8b8592978f8bd833ca8133",
@@ -31,7 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res) => {
+app.use((req, res, next) => {
   if (!req.user || !req.user._id) {
     return res.status(BAD_REQUEST).json({ error: "User ID is required" });
   }
@@ -43,7 +44,8 @@ app.post("/signup", createUser);
 
 app.use("/", mainRouter);
 
-app.use((err, req, res, next) => {
+// Global error handling middleware
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(SERVER_ERROR).json({ message: "Something went wrong!" });
 });
