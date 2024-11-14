@@ -53,7 +53,7 @@ const deleteItem = async (req, res) => {
 
   if (!isValidObjectId(itemId)) {
    
-    return res.status(200).json({ message: "Invalid item ID" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
   }
 
   try {

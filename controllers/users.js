@@ -2,141 +2,107 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validator = require("validator"); 
 const User = require("../models/user");
-const { BAD_REQUEST, SERVER_ERROR, NOT_FOUND, UNAUTHORIZED,CONFLICT } = require("../utils/errors");
+const { BAD_REQUEST, SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, CONFLICT } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
-
-const getUsers = (req, res) =>
-  User.find({})
-    .then((users) => res.send(users))
-    .catch(() =>
-      res
-        .status(SERVER_ERROR)
-        .json({ message: "An error has occurred on the server." })
-    );
 
 const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  if (!name) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "The 'name' field is required." });
-  }
-
-  if (name.length < 2) {
+  if (!name || name.length < 2 || name.length > 30) {
     return res.status(BAD_REQUEST).json({
-      message: "The 'name' field must be at least 2 characters long.",
+      message: name
+        ? name.length < 2
+          ? "The 'name' field must be at least 2 characters long."
+          : "The 'name' field must be 30 characters or fewer."
+        : "The 'name' field is required.",
     });
-  }
-
-  if (name.length > 30) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "The 'name' field must be 30 characters or fewer." });
   }
 
   if (!avatar) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "The 'avatar' field is required." });
+    return res.status(BAD_REQUEST).json({ message: "The 'avatar' field is required." });
   }
 
-  if (!email) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "The 'email' field is required." });
-  }
-
-  if (!validator.isEmail(email)) {
+  if (!email || !validator.isEmail(email)) {
     return res.status(BAD_REQUEST).json({
-      message: "Please provide a valid email address.",
+      message: email ? "Please provide a valid email address." : "The 'email' field is required.",
     });
   }
 
-  if (!password) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "The 'password' field is required." });
+  if (!password || password.length < 6) {
+    return res.status(BAD_REQUEST).json({
+      message: password
+        ? "Password must be at least 6 characters long."
+        : "The 'password' field is required.",
+    });
   }
 
-  if (password.length < 10) {
-    return res
-      .status(CONFLICT)  
-      .json({ message: "Password must be at least 10 characters long." });
- 
-}
-
   try {
-   
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    const hashedPassword = await bcrypt.hash(password, 6);
     const user = await User.create({
       name,
       avatar,
       email,
       password: hashedPassword,
     });
-
-    return res.status(201).json(user);
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    
+    return res.status(200).json({ data: userResponse });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(CONFLICT).json({
-        message: "A user with this email already exists.",
-      });
+      return res.status(CONFLICT).json({ message: "A user with this email already exists." });
     }
     if (error.name === "ValidationError") {
-      return res
-        .status(BAD_REQUEST)
-        .json({ message: "Invalid data provided." });
+      return res.status(BAD_REQUEST).json({
+        message: "Invalid data provided.",
+        errors: error.errors,
+      });
     }
-    return res
-      .status(SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
   }
 };
 
 const getMe = (req, res) => {
-  const userId  = req.user._id;
+  const userId = req.user._id;
 
-  User.findById(userId)
+  User.findById(userId).select('-password') 
     .then((user) => {
       if (!user) {
         return res.status(NOT_FOUND).json({ message: "User not found." });
       }
-      return res.status(200).json(user);
+      return res.status(200).json({ data: user });
     })
     .catch((err) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
-      return res
-        .status(SERVER_ERROR)
-        .json({ message: "An error has occurred on the server." });
+      return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
     });
 };
 
 const updateMe = (req, res) => {
-  const userId  = req.user._id;
-  const { name,avatar } = req.body;
-  if (!isValidObjectId(userId)) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid user ID" });
-  }
-  return User.findByIdAndUpdate(
+  const userId = req.user._id;
+  const { name, avatar } = req.body;
+
+  User.findByIdAndUpdate(
     userId,
-    { $set: { name,avatar } },
-    { new: true },
+    { $set: { name, avatar } },
+    { new: true, runValidators: true, select: '-password' } 
   )
-    .then((user) =>
-     user
-        ? res.status(200).json({ data: user})
-        : res.status(404).json({ message: "User not found" }),
+    .then((user) => 
+      user
+        ? res.status(200).json({ data: user })
+        : res.status(NOT_FOUND).json({ message: "User not found" })
     )
-    .catch((e) =>
-      res
-        .status(500)
-        .json({ message: "Error updating user", error: e.message })
-    );
+    .catch((error) => {
+      if (error.name === "ValidationError") {
+        return res.status(BAD_REQUEST).json({
+          message: "Invalid data provided.",
+          errors: error.errors,
+        });
+      }
+      return res.status(SERVER_ERROR).json({ message: "Error updating user" });
+    });
 };
 
 const login = async (req, res) => {
@@ -158,12 +124,11 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-
-    return res.status(200).json({ message: "Authentication successful", user, token });
+    return res.status(200).json({ message: "Authentication successful", token });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(SERVER_ERROR).json({ message: "An error has occurred on the server." });
   }
 };
 
-module.exports = { getUsers, createUser, getMe, updateMe, login };
+module.exports = { createUser, getMe, updateMe, login };

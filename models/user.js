@@ -32,27 +32,10 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 10,
-    message: "Password must be at least 10 characters long",
+    minlength: 6,
+    message: "Password must be at least 6 characters long",
     select: false,
   },
 });
-
-userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email })
-    .select("+password")
-    .then((user) => {
-      if (!user) {
-        throw new Error("Incorrect email or password");
-      }
-
-      return bcrypt.compare(password, user.password).then((isMatch) => {
-        if (!isMatch) {
-          throw new Error("Incorrect email or password");
-        }
-        return user;
-      });
-    });
-};
 
 module.exports = mongoose.model("User", userSchema);
