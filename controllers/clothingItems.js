@@ -56,7 +56,7 @@ const deleteItem = async (req, res) => {
   const { itemId } = req.params;
 
   if (!isValidObjectId(itemId)) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+    return res.status(FORBIDDEN).json({ message: "Invalid item ID" });
   }
 
   try {
