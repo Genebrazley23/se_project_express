@@ -20,14 +20,13 @@ const auth = (req, res, next) => {
 
     req.user = payload;
 
-    next();
+    return next();
   } catch (err) {
     console.error(err);
     return res
       .status(UNAUTHORIZED)
       .json({ message: "Invalid or expired token" });
   }
-  return;
 };
 
 module.exports = auth;

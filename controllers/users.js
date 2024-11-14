@@ -24,7 +24,7 @@ const createUser = async (req, res) => {
       message = "The 'name' field is required.";
     }
     return res.status(BAD_REQUEST).json({
-      message: message,
+      message,
     });
   }
 
