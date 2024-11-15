@@ -15,17 +15,11 @@ const createUser = async (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name || name.length < 2 || name.length > 30) {
-    let message;
-    if (name.length < 2) {
-      message = "The 'name' field must be at least 2 characters long.";
-    } else if (name.length > 30) {
-      message = "The 'name' field must be 30 characters or fewer.";
-    } else if (!name) {
-      message = "The 'name' field is required.";
-    }
-    return res.status(BAD_REQUEST).json({
-      message,
-    });
+    const message =
+      name.length < 2
+        ? "The 'name' field must be at least 2 characters long."
+        : "The 'name' field must be 30 characters or fewer.";
+    return res.status(BAD_REQUEST).json({ message });
   }
 
   if (!avatar) {
@@ -51,7 +45,7 @@ const createUser = async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 6);
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
       avatar,

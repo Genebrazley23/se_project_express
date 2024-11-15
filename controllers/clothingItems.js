@@ -56,11 +56,12 @@ const deleteItem = async (req, res) => {
   const { itemId } = req.params;
 
   if (!isValidObjectId(itemId)) {
-    return res.status(FORBIDDEN).json({ message: "Invalid item ID" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
   }
 
   try {
     const item = await ClothingItem.findById(itemId);
+
     if (!item) {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
@@ -72,6 +73,15 @@ const deleteItem = async (req, res) => {
     }
 
     await ClothingItem.findByIdAndDelete(itemId);
+
+    const deletedItem = await ClothingItem.findById(itemId);
+    if (deletedItem) {
+      return res.status(INTERNAL_SERVER_ERROR).json({
+        message: "Error deleting the item, it still exists.",
+      });
+    }
+
+    e;
     return res
       .status(200)
       .json({ message: "Item deleted successfully", data: item });
@@ -82,7 +92,6 @@ const deleteItem = async (req, res) => {
       .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
-
 const likeItem = async (req, res) => {
   const { itemId } = req.params;
 
