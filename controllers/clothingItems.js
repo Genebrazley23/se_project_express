@@ -132,8 +132,8 @@ const dislikeItem = async (req, res) => {
     return item
       ? res.status(200).json({ data: item })
       : res.status(NOT_FOUND).json({ message: "Item not found" });
-  } catch (e) {
-    console.error("Error disliking item:", e);
+  } catch (error) {
+    console.error("Error disliking item:", error);
     return res
       .status(INTERNAL_SERVER_ERROR)
       .json({ message: SERVER_ERROR_MESSAGE });
