@@ -81,7 +81,6 @@ const deleteItem = async (req, res) => {
       });
     }
 
-    e;
     return res
       .status(200)
       .json({ message: "Item deleted successfully", data: item });
@@ -92,6 +91,7 @@ const deleteItem = async (req, res) => {
       .json({ message: SERVER_ERROR_MESSAGE });
   }
 };
+
 const likeItem = async (req, res) => {
   const { itemId } = req.params;
 
