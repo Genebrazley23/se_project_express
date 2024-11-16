@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
 
   if (!authorization) {
     return res
-      .status(BAD_REQUEST)
+      .status(UNAUTHORIZED)
       .json({ message: "No authorization header found" });
   }
 

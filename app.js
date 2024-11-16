@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const { SERVER_ERROR, BAD_REQUEST } = require("./utils/errors");
-
 const mainRouter = require("./routes/index");
 const { login, createUser } = require("./controllers/users");
 
@@ -25,13 +24,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {
-  req.user = {
-    _id: "5d8b8592978f8bd833ca8133",
-  };
-  next();
-});
-
-app.use((req, res, next) => {
   if (!req.user || !req.user._id) {
     return res.status(BAD_REQUEST).json({ error: "User ID is required" });
   }
@@ -40,7 +32,6 @@ app.use((req, res, next) => {
 
 app.post("/signin", login);
 app.post("/signup", createUser);
-
 app.use("/", mainRouter);
 
 app.use((err, req, res) => {

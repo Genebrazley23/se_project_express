@@ -45,7 +45,7 @@ const createUser = async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 6);
     const user = await User.create({
       name,
       avatar,
@@ -65,7 +65,6 @@ const createUser = async (req, res) => {
     if (error.name === "ValidationError") {
       return res.status(BAD_REQUEST).json({
         message: "Invalid data provided.",
-        errors: error.errors,
       });
     }
     return res
@@ -102,7 +101,7 @@ const updateMe = (req, res) => {
   User.findByIdAndUpdate(
     userId,
     { $set: { name, avatar } },
-    { new: true, runValidators: true, select: "-password" },
+    { new: true, runValidators: true },
   )
     .then((user) =>
       user
@@ -113,7 +112,6 @@ const updateMe = (req, res) => {
       if (error.name === "ValidationError") {
         return res.status(BAD_REQUEST).json({
           message: "Invalid data provided.",
-          errors: error.errors,
         });
       }
       return res.status(SERVER_ERROR).json({ message: "Error updating user" });
