@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { SERVER_ERROR, BAD_REQUEST } = require("./utils/errors");
+const { SERVER_ERROR } = require("./utils/errors");
 const mainRouter = require("./routes/index");
 const { login, createUser } = require("./controllers/users");
 
@@ -27,8 +27,7 @@ app.post("/signin", login);
 app.post("/signup", createUser);
 app.use("/", mainRouter);
 
-// Error-handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(SERVER_ERROR).json({ message: "Something went wrong!" });
 });
