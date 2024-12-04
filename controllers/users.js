@@ -82,6 +82,7 @@ const getMe = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).json({ message: "User not found." });
       }
+      console.log("gd", user);
       return res.status(200).json({ data: user });
     })
     .catch((err) => {
@@ -142,10 +143,12 @@ const login = async (req, res) => {
         .json({ message: "Incorrect email or password." });
     }
 
+    delete user.password;
+    console.log("gdkbasi", user);
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
     return res
       .status(200)
-      .json({ message: "Authentication successful", token });
+      .json({ message: "Authentication successful", token, user });
   } catch (error) {
     console.log(error);
     return res

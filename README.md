@@ -69,7 +69,7 @@ next();
 
 app.use("/", mainRouter);
 app.listen(PORT, () => {
-console.log(`App listening at port ${PORT}`);
+.log(`App listening at port ${PORT}`);
 });
 
 # Created Error Codes in utils/errors.js:

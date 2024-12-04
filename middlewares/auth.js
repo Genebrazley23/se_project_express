@@ -1,6 +1,23 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 const { UNAUTHORIZED } = require("../utils/errors");
+const authOptional = (req, res, next) => {
+  try {
+    const { headers } = req;
+    const { authorization } = headers;
+    const token = authorization.replace("Bearer ", "");
+
+    console.log("token", token, JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET);
+
+    req.user = payload;
+
+    return next();
+  } catch (err) {
+    console.error(err);
+    return next();
+  }
+};
 
 const auth = (req, res, next) => {
   const { headers } = req;
@@ -29,4 +46,4 @@ const auth = (req, res, next) => {
   }
 };
 
-module.exports = auth;
+module.exports = { auth, authOptional };

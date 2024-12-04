@@ -42,8 +42,15 @@ const createItem = async (req, res) => {
 
 const getItems = async (req, res) => {
   try {
-    const items = await ClothingItem.find();
-    return res.status(200).json({ data: items });
+    console.log("dewi", req.user);
+    const items = ClothingItem.find();
+    if (req.user) {
+      items.where("owner").equals(req.user._id);
+    } else {
+      items.where("owner").exists(false);
+    }
+    const results = await items.exec();
+    return res.status(200).json({ data: results });
   } catch (e) {
     console.error("Error retrieving items:", e);
     return res
