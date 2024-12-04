@@ -110,7 +110,7 @@ const likeItem = async (req, res) => {
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     return item
       ? res.status(200).json({ data: item })
@@ -134,7 +134,7 @@ const dislikeItem = async (req, res) => {
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     return item
       ? res.status(200).json({ data: item })
