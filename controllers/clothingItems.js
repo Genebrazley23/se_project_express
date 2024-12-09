@@ -44,11 +44,7 @@ const getItems = async (req, res) => {
   try {
     console.log("dewi", req.user);
     const items = ClothingItem.find();
-    if (req.user) {
-      items.where("owner").equals(req.user._id);
-    } else {
-      items.where("owner").exists(false);
-    }
+
     const results = await items.exec();
     return res.status(200).json({ data: results });
   } catch (e) {
@@ -110,7 +106,7 @@ const likeItem = async (req, res) => {
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     return item
       ? res.status(200).json({ data: item })
@@ -134,7 +130,7 @@ const dislikeItem = async (req, res) => {
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
     return item
       ? res.status(200).json({ data: item })
