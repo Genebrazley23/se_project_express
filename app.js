@@ -12,9 +12,7 @@ const { PORT = 3001, DB_URI = "mongodb://127.0.0.1:27017/wtwr_db" } =
 mongoose.set("strictQuery", true);
 mongoose
   .connect(DB_URI, {})
-  .then(() => {
-    console.log("Connected to DB");
-  })
+  .then(() => {})
   .catch((err) => {
     console.error("Database connection error:", err);
     process.exit(1);

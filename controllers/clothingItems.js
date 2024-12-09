@@ -42,7 +42,6 @@ const createItem = async (req, res) => {
 
 const getItems = async (req, res) => {
   try {
-    console.log("dewi", req.user);
     const items = ClothingItem.find();
 
     const results = await items.exec();
