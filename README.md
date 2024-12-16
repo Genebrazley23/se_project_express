@@ -84,3 +84,9 @@ BAD_REQUEST,
 NOT_FOUND,
 SERVER_ERROR,
 };
+
+# Access to Domain
+
+- API: (http://api.express.ignorelist.com)
+- Main Website:(http://express.ignorelist.com)
+- WWW Version: (http://www.express.ignorelist.com)

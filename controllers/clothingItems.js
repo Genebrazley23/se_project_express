@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
 const {
-  SERVER_ERROR_MESSAGE,
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
@@ -10,7 +9,7 @@ const {
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-const createItem = async (req, res) => {
+const createItem = async (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
   if (!name || !weather || !imageUrl) {
@@ -34,27 +33,21 @@ const createItem = async (req, res) => {
         .json({ message: "Invalid data provided." });
     }
     console.error("Error creating item:", e);
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: SERVER_ERROR_MESSAGE });
+    next(e);
   }
 };
 
-const getItems = async (req, res) => {
+const getItems = async (req, res, next) => {
   try {
     const items = ClothingItem.find();
-
     const results = await items.exec();
     return res.status(200).json({ data: results });
   } catch (e) {
-    console.error("Error retrieving items:", e);
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: SERVER_ERROR_MESSAGE });
+    next(e);
   }
 };
 
-const deleteItem = async (req, res) => {
+const deleteItem = async (req, res, next) => {
   const { itemId } = req.params;
 
   if (!isValidObjectId(itemId)) {
@@ -88,13 +81,11 @@ const deleteItem = async (req, res) => {
       .json({ message: "Item deleted successfully", data: item });
   } catch (e) {
     console.error("Error deleting item:", e);
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: SERVER_ERROR_MESSAGE });
+    next(e);
   }
 };
 
-const likeItem = async (req, res) => {
+const likeItem = async (req, res, next) => {
   const { itemId } = req.params;
 
   if (!isValidObjectId(itemId)) {
@@ -112,13 +103,11 @@ const likeItem = async (req, res) => {
       : res.status(NOT_FOUND).json({ message: "Item not found" });
   } catch (e) {
     console.error("Error liking item:", e);
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: SERVER_ERROR_MESSAGE });
+    next(e);
   }
 };
 
-const dislikeItem = async (req, res) => {
+const dislikeItem = async (req, res, next) => {
   const { itemId } = req.params;
 
   if (!isValidObjectId(itemId)) {
@@ -136,9 +125,147 @@ const dislikeItem = async (req, res) => {
       : res.status(NOT_FOUND).json({ message: "Item not found" });
   } catch (error) {
     console.error("Error disliking item:", error);
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: SERVER_ERROR_MESSAGE });
+    const mongoose = require("mongoose");
+    const ClothingItem = require("../models/clothingItem");
+    const {
+      SERVER_ERROR_MESSAGE,
+      BAD_REQUEST,
+      NOT_FOUND,
+      INTERNAL_SERVER_ERROR,
+      FORBIDDEN,
+    } = require("../utils/errors");
+
+    const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+    const createItem = async (req, res) => {
+      const { name, weather, imageUrl } = req.body;
+
+      if (!name || !weather || !imageUrl) {
+        return res.status(BAD_REQUEST).json({
+          message: "All fields (name, weather, imageUrl) are required.",
+        });
+      }
+
+      try {
+        const item = await ClothingItem.create({
+          name,
+          weather,
+          imageUrl,
+          owner: req.user._id,
+        });
+        return res.status(201).json({ data: item });
+      } catch (e) {
+        if (e.name === "ValidationError") {
+          return res
+            .status(BAD_REQUEST)
+            .json({ message: "Invalid data provided." });
+        }
+        console.error("Error creating item:", e);
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .json({ message: SERVER_ERROR_MESSAGE });
+      }
+    };
+
+    const getItems = async (req, res, next) => {
+      try {
+        const items = ClothingItem.find();
+        const results = await items.exec();
+        return res.status(200).json({ data: results });
+      } catch (e) {
+        next(e);
+      }
+    };
+
+    const deleteItem = async (req, res, next) => {
+      const { itemId } = req.params;
+
+      if (!isValidObjectId(itemId)) {
+        return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+      }
+
+      try {
+        const item = await ClothingItem.findById(itemId);
+
+        if (!item) {
+          return res.status(NOT_FOUND).json({ message: "Item not found" });
+        }
+
+        if (item.owner.toString() !== req.user._id.toString()) {
+          return res
+            .status(FORBIDDEN)
+            .json({ message: "You are not authorized to delete this item" });
+        }
+
+        await ClothingItem.findByIdAndDelete(itemId);
+
+        const deletedItem = await ClothingItem.findById(itemId);
+        if (deletedItem) {
+          return res.status(INTERNAL_SERVER_ERROR).json({
+            message: "Error deleting the item, it still exists.",
+          });
+        }
+
+        return res
+          .status(200)
+          .json({ message: "Item deleted successfully", data: item });
+      } catch (e) {
+        console.error("Error deleting item:", e);
+        next(e);
+      }
+    };
+
+    const likeItem = async (req, res, next) => {
+      const { itemId } = req.params;
+
+      if (!isValidObjectId(itemId)) {
+        return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+      }
+
+      try {
+        const item = await ClothingItem.findByIdAndUpdate(
+          itemId,
+          { $addToSet: { likes: req.user._id } },
+          { new: true },
+        );
+        return item
+          ? res.status(200).json({ data: item })
+          : res.status(NOT_FOUND).json({ message: "Item not found" });
+      } catch (e) {
+        console.error("Error liking item:", e);
+        next(e);
+      }
+    };
+
+    const dislikeItem = async (req, res, next) => {
+      const { itemId } = req.params;
+
+      if (!isValidObjectId(itemId)) {
+        return res.status(BAD_REQUEST).json({ message: "Invalid item ID" });
+      }
+
+      try {
+        const item = await ClothingItem.findByIdAndUpdate(
+          itemId,
+          { $pull: { likes: req.user._id } },
+          { new: true },
+        );
+        return item
+          ? res.status(200).json({ data: item })
+          : res.status(NOT_FOUND).json({ message: "Item not found" });
+      } catch (e) {
+        console.error("Error disliking item:", e);
+        next(e);
+      }
+    };
+
+    module.exports = {
+      createItem,
+      getItems,
+      deleteItem,
+      likeItem,
+      dislikeItem,
+    };
   }
 };
 

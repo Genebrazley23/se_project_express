@@ -11,7 +11,7 @@ const {
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name || name.length < 2 || name.length > 30) {
@@ -67,13 +67,12 @@ const createUser = async (req, res) => {
         message: "Invalid data provided.",
       });
     }
-    return res
-      .status(SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    console.error("Error creating user:", error);
+    next(error); // Pass the error to the global error handler
   }
 };
 
-const getMe = (req, res) => {
+const getMe = (req, res, next) => {
   const userId = req.user._id;
 
   User.findById(userId)
@@ -89,13 +88,12 @@ const getMe = (req, res) => {
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
-      return res
-        .status(SERVER_ERROR)
-        .json({ message: "An error has occurred on the server." });
+      console.error("Error fetching user:", err);
+      next(err); // Pass the error to the global error handler
     });
 };
 
-const updateMe = (req, res) => {
+const updateMe = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
 
@@ -115,11 +113,12 @@ const updateMe = (req, res) => {
           message: "Invalid data provided.",
         });
       }
-      return res.status(SERVER_ERROR).json({ message: "Error updating user" });
+      console.error("Error updating user:", error);
+      next(error); // Pass the error to the global error handler
     });
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -144,16 +143,14 @@ const login = async (req, res) => {
     }
 
     delete user.password;
-   
+
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
     return res
       .status(200)
       .json({ message: "Authentication successful", token, user });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    console.error("Error during login:", error);
+    next(error);
   }
 };
 
