@@ -67,8 +67,7 @@ const createUser = async (req, res, next) => {
       });
     }
     console.error("Error creating user:", error);
-    next(error);
-    return;
+    return next(error);
   }
 };
 
@@ -89,8 +88,7 @@ const getMe = (req, res, next) => {
         return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
       console.error("Error fetching user:", err);
-      next(err);
-      return;
+      return next(error);
     });
 };
 
@@ -116,8 +114,7 @@ const updateMe = (req, res, next) => {
         });
       }
       console.error("Error updating user:", error);
-      next(error);
-      return;
+      return next(error);
     });
 };
 
@@ -153,8 +150,7 @@ const login = async (req, res, next) => {
       .json({ message: "Authentication successful", token, user });
   } catch (error) {
     console.error("Error during login:", error);
-    next(error);
-    return;
+    return next(error);
   }
 };
 
