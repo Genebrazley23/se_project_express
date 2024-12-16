@@ -67,7 +67,8 @@ const createUser = async (req, res, next) => {
       });
     }
     console.error("Error creating user:", error);
-    next(error); // Pass the error to the global error handler
+    next(error);
+    return;
   }
 };
 
@@ -89,6 +90,7 @@ const getMe = (req, res, next) => {
       }
       console.error("Error fetching user:", err);
       next(err);
+      return;
     });
 };
 
@@ -114,7 +116,8 @@ const updateMe = (req, res, next) => {
         });
       }
       console.error("Error updating user:", error);
-      next(error); // Pass the error to the global error handler
+      next(error);
+      return;
     });
 };
 
@@ -151,6 +154,7 @@ const login = async (req, res, next) => {
   } catch (error) {
     console.error("Error during login:", error);
     next(error);
+    return;
   }
 };
 
