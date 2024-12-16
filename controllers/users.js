@@ -4,7 +4,6 @@ const validator = require("validator");
 const User = require("../models/user");
 const {
   BAD_REQUEST,
-  SERVER_ERROR,
   NOT_FOUND,
   UNAUTHORIZED,
   CONFLICT,
@@ -89,7 +88,7 @@ const getMe = (req, res, next) => {
         return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
       console.error("Error fetching user:", err);
-      next(err); // Pass the error to the global error handler
+      next(err);
     });
 };
 
@@ -100,13 +99,14 @@ const updateMe = (req, res, next) => {
   User.findByIdAndUpdate(
     userId,
     { $set: { name, avatar } },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
-    .then((user) =>
-      user
-        ? res.status(200).json({ data: user })
-        : res.status(NOT_FOUND).json({ message: "User not found" }),
-    )
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).json({ message: "User not found" });
+      }
+      return res.status(200).json({ data: user });
+    })
     .catch((error) => {
       if (error.name === "ValidationError") {
         return res.status(BAD_REQUEST).json({

@@ -1,7 +1,7 @@
+const { celebrate, Joi } = require("celebrate");
 const express = require("express");
 const { getMe, updateMe } = require("../controllers/users");
 const { auth } = require("../middlewares/auth");
-const { celebrate, Joi } = require("celebrate");
 
 const router = express.Router();
 router.get("/me", auth, celebrate({ body: Joi.object().keys({}) }), getMe);
@@ -14,7 +14,7 @@ router.patch(
       avatar: Joi.string().required(),
     }),
   }),
-  updateMe,
+  updateMe
 );
 
 module.exports = router;

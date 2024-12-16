@@ -27,15 +27,13 @@ const createItem = async (req, res, next) => {
     });
     return res.status(201).json({ data: item });
   } catch (e) {
+    console.error("Error creating item:", e);
     if (e.name === "ValidationError") {
       return res
         .status(BAD_REQUEST)
         .json({ message: "Invalid data provided." });
     }
-    console.error("Error creating item:", e);
-    return res.status(INTERNAL_SERVER_ERROR).json({
-      message: "An error occurred while creating the item.",
-    });
+    return next(e);
   }
 };
 
@@ -45,7 +43,7 @@ const getItems = async (req, res, next) => {
     return res.status(200).json({ data: items });
   } catch (e) {
     console.error("Error fetching items:", e);
-    next(e);
+    return next(e);
   }
 };
 
@@ -64,9 +62,9 @@ const deleteItem = async (req, res, next) => {
     }
 
     if (item.owner.toString() !== req.user._id.toString()) {
-      return res
-        .status(FORBIDDEN)
-        .json({ message: "You are not authorized to delete this item" });
+      return res.status(FORBIDDEN).json({
+        message: "You are not authorized to delete this item",
+      });
     }
 
     await ClothingItem.findByIdAndDelete(itemId);
@@ -78,12 +76,13 @@ const deleteItem = async (req, res, next) => {
       });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Item deleted successfully", data: item });
+    return res.status(200).json({
+      message: "Item deleted successfully",
+      data: item,
+    });
   } catch (e) {
     console.error("Error deleting item:", e);
-    next(e);
+    return next(e);
   }
 };
 
@@ -105,7 +104,7 @@ const likeItem = async (req, res, next) => {
       : res.status(NOT_FOUND).json({ message: "Item not found" });
   } catch (e) {
     console.error("Error liking item:", e);
-    next(e);
+    return next(e);
   }
 };
 
@@ -127,7 +126,7 @@ const dislikeItem = async (req, res, next) => {
       : res.status(NOT_FOUND).json({ message: "Item not found" });
   } catch (e) {
     console.error("Error disliking item:", e);
-    next(e);
+    return next(e);
   }
 };
 
