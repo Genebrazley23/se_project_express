@@ -83,11 +83,11 @@ const getMe = (req, res, next) => {
 
       return res.status(200).json({ data: user });
     })
-    .catch((err) => {
-      if (err.name === "CastError") {
+    .catch((error) => {
+      if (error.name === "CastError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
       }
-      console.error("Error fetching user:", err);
+      console.error("Error fetching user:", error);
       return next(error);
     });
 };

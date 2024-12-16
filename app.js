@@ -1,3 +1,4 @@
+const { errors } = require("celebrate");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -34,7 +35,7 @@ app.use("/", mainRouter);
 app.use(errorLogger);
 
 app.use(errors());
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(SERVER_ERROR).json({ message: "Something went  wrong!" });
 });
