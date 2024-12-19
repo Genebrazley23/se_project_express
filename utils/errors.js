@@ -58,11 +58,4 @@ module.exports = {
   NotFoundError,
   ConflictError,
   InternalServerError,
-  BAD_REQUEST,
-  UNAUTHORIZED,
-  FORBIDDEN,
-  NOT_FOUND,
-  CONFLICT,
-  SERVER_ERROR,
-  SERVER_ERROR_MESSAGE,
 };

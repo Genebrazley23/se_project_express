@@ -11,7 +11,6 @@ const {
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-// Helper for validating user input
 const validateUserInput = ({ name, avatar, email, password }) => {
   if (!name || name.length < 2 || name.length > 30) {
     throw new BadRequestError(
@@ -68,7 +67,7 @@ const createUser = async (req, res, next) => {
     if (error.name === "ValidationError") {
       return next(new BadRequestError("Invalid data provided."));
     }
-    next(error); // Pass unhandled errors to middleware
+    return next(error);
   }
 };
 
@@ -82,7 +81,7 @@ const getMe = async (req, res, next) => {
 
     res.status(200).json({ data: user });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -105,7 +104,7 @@ const updateMe = async (req, res, next) => {
     if (error.name === "ValidationError") {
       return next(new BadRequestError("Invalid data provided."));
     }
-    next(error);
+    return next(error);
   }
 };
 
@@ -129,7 +128,7 @@ const login = async (req, res, next) => {
       .status(200)
       .json({ message: "Authentication successful", token, data: user });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

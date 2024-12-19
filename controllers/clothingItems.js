@@ -30,7 +30,7 @@ const createItem = async (req, res, next) => {
     if (e.name === "ValidationError") {
       return next(new BadRequestError("Invalid data provided."));
     }
-    next(new InternalServerError());
+    return next(new InternalServerError());
   }
 };
 
@@ -39,7 +39,7 @@ const getItems = async (req, res, next) => {
     const items = await ClothingItem.find();
     res.status(200).json({ data: items });
   } catch (e) {
-    next(new InternalServerError());
+    return next(new InternalServerError());
   }
 };
 
@@ -67,7 +67,7 @@ const deleteItem = async (req, res, next) => {
 
     res.status(200).json({ message: "Item deleted successfully", data: item });
   } catch (e) {
-    next(new InternalServerError());
+    return next(new InternalServerError());
   }
 };
 
@@ -91,7 +91,7 @@ const likeItem = async (req, res, next) => {
 
     res.status(200).json({ data: item });
   } catch (e) {
-    next(new InternalServerError());
+    return next(new InternalServerError());
   }
 };
 
@@ -115,7 +115,7 @@ const dislikeItem = async (req, res, next) => {
 
     res.status(200).json({ data: item });
   } catch (e) {
-    next(new InternalServerError());
+    return next(new InternalServerError());
   }
 };
 
