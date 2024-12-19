@@ -7,7 +7,6 @@ const {
   NotFoundError,
   UnauthorizedError,
   ConflictError,
-  InternalServerError,
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
@@ -59,7 +58,7 @@ const createUser = async (req, res, next) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    res.status(201).json({ data: userResponse });
+    return res.status(201).json({ data: userResponse });
   } catch (error) {
     if (error.code === 11000) {
       return next(new ConflictError("A user with this email already exists."));
@@ -79,7 +78,7 @@ const getMe = async (req, res, next) => {
       throw new NotFoundError("User not found.");
     }
 
-    res.status(200).json({ data: user });
+    return res.status(200).json({ data: user });
   } catch (error) {
     return next(error);
   }
@@ -99,7 +98,7 @@ const updateMe = async (req, res, next) => {
       throw new NotFoundError("User not found.");
     }
 
-    res.status(200).json({ data: updatedUser });
+    return res.status(200).json({ data: updatedUser });
   } catch (error) {
     if (error.name === "ValidationError") {
       return next(new BadRequestError("Invalid data provided."));
@@ -124,7 +123,7 @@ const login = async (req, res, next) => {
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
 
-    res
+    return res
       .status(200)
       .json({ message: "Authentication successful", token, data: user });
   } catch (error) {

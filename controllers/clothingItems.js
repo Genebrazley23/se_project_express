@@ -25,7 +25,7 @@ const createItem = async (req, res, next) => {
       imageUrl,
       owner: req.user._id,
     });
-    res.status(201).json({ data: item });
+    return res.status(201).json({ data: item }); // Ensure to return here
   } catch (e) {
     if (e.name === "ValidationError") {
       return next(new BadRequestError("Invalid data provided."));
@@ -37,7 +37,7 @@ const createItem = async (req, res, next) => {
 const getItems = async (req, res, next) => {
   try {
     const items = await ClothingItem.find();
-    res.status(200).json({ data: items });
+    return res.status(200).json({ data: items }); // Ensure to return here
   } catch (e) {
     return next(new InternalServerError());
   }
@@ -65,7 +65,9 @@ const deleteItem = async (req, res, next) => {
 
     await item.remove(); // Avoid extra query by calling `remove` on the document directly
 
-    res.status(200).json({ message: "Item deleted successfully", data: item });
+    return res
+      .status(200)
+      .json({ message: "Item deleted successfully", data: item }); // Ensure to return here
   } catch (e) {
     return next(new InternalServerError());
   }
@@ -89,7 +91,7 @@ const likeItem = async (req, res, next) => {
       return next(new NotFoundError("Item not found."));
     }
 
-    res.status(200).json({ data: item });
+    return res.status(200).json({ data: item });
   } catch (e) {
     return next(new InternalServerError());
   }
@@ -113,7 +115,7 @@ const dislikeItem = async (req, res, next) => {
       return next(new NotFoundError("Item not found."));
     }
 
-    res.status(200).json({ data: item });
+    return res.status(200).json({ data: item });
   } catch (e) {
     return next(new InternalServerError());
   }
