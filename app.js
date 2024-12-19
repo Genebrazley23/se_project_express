@@ -1,10 +1,10 @@
+require("dotenv").config();
 const { errors } = require("celebrate");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const { SERVER_ERROR } = require("./utils/errors");
 const mainRouter = require("./routes/index");
-require("dotenv").config();
 
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { errors } = require("celebrate");
@@ -35,11 +35,19 @@ app.use("/", mainRouter);
 app.use(errorLogger);
 
 app.use(errors());
-app.use((err, req, res) => {
+
+const errHandler = (err, req, res, next) => {
   console.error(err.stack);
-  res.status(SERVER_ERROR).json({ message: "Something went  wrong!" });
-});
+  const statusCode = err.statusCode || 500;
+
+  const message =
+    statusCode === 500 ? "An error has occurred on the server." : err.message;
+  res.status(statusCode).send({ message });
+  next(err);
+};
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
 });
+
+module.exports = errHandler;

@@ -4,14 +4,16 @@ const { getMe, updateMe } = require("../controllers/users");
 const { auth } = require("../middlewares/auth");
 
 const router = express.Router();
-router.get("/me", auth, celebrate({ body: Joi.object().keys({}) }), getMe);
+
+router.get("/me", auth, getMe);
+
 router.patch(
   "/me",
   auth,
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().required(),
-      avatar: Joi.string().required(),
+      name: Joi.string().min(2).max(30).required(),
+      avatar: Joi.string().uri().required(),
     }),
   }),
   updateMe

@@ -1,17 +1,20 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const { UNAUTHORIZED } = require("../utils/errors");
+const { UnauthorizedError } = require("../utils/errors"); // Custom error class
+
 const authOptional = (req, res, next) => {
   try {
     const { headers } = req;
     const { authorization } = headers;
-    const token = authorization.replace("Bearer ", "");
 
-    console.log("token", token, JWT_SECRET);
-    const payload = jwt.verify(token, JWT_SECRET);
+    if (authorization) {
+      const token = authorization.replace("Bearer ", "");
 
-    req.user = payload;
+      console.log("token", token, JWT_SECRET);
+      const payload = jwt.verify(token, JWT_SECRET);
 
+      req.user = payload;
+    }
     return next();
   } catch (err) {
     console.error(err);
@@ -24,9 +27,7 @@ const auth = (req, res, next) => {
   const { authorization } = headers;
 
   if (!authorization) {
-    return res
-      .status(UNAUTHORIZED)
-      .json({ message: "No authorization header found" });
+    return next(new UnauthorizedError("No authorization header found"));
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -36,13 +37,11 @@ const auth = (req, res, next) => {
     const payload = jwt.verify(token, JWT_SECRET);
 
     req.user = payload;
-
     return next();
   } catch (err) {
     console.error(err);
-    return res
-      .status(UNAUTHORIZED)
-      .json({ message: "Invalid or expired token" });
+
+    return next(new UnauthorizedError("Invalid or expired token"));
   }
 };
 

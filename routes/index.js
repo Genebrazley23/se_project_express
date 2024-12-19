@@ -1,17 +1,37 @@
 const express = require("express");
+const { celebrate, Joi, errors } = require("celebrate");
 const router = express.Router();
 const { login, createUser } = require("../controllers/users");
 const userRoutes = require("./users");
 const clothingItem = require("./clothingItems");
 const { NOT_FOUND } = require("../utils/errors");
 
-router.post("/signin", login);
-router.post("/signup", createUser);
+const loginSchema = {
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+};
+
+const signupSchema = {
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    name: Joi.string().required(),
+  }),
+};
+
+router.post("/signin", celebrate(loginSchema), login);
+router.post("/signup", celebrate(signupSchema), createUser);
 router.use("/users", userRoutes);
 router.use("/items", clothingItem);
 
-router.use((req, res) => {
-  res.status(NOT_FOUND).json({ message: "Route not found" });
+router.use((req, res, next) => {
+  const error = new Error("Route not found");
+  error.statusCode = NOT_FOUND;
+  next(error);
 });
+
+router.use(errors());
 
 module.exports = router;

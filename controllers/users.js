@@ -3,154 +3,133 @@ const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const User = require("../models/user");
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  UNAUTHORIZED,
-  CONFLICT,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+  ConflictError,
+  InternalServerError,
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
+
+// Helper for validating user input
+const validateUserInput = ({ name, avatar, email, password }) => {
+  if (!name || name.length < 2 || name.length > 30) {
+    throw new BadRequestError(
+      name.length < 2
+        ? "The 'name' field must be at least 2 characters long."
+        : "The 'name' field must be 30 characters or fewer."
+    );
+  }
+
+  if (!avatar) {
+    throw new BadRequestError("The 'avatar' field is required.");
+  }
+
+  if (!email || !validator.isEmail(email)) {
+    throw new BadRequestError(
+      email
+        ? "Please provide a valid email address."
+        : "The 'email' field is required."
+    );
+  }
+
+  if (!password || password.length < 6) {
+    throw new BadRequestError(
+      password
+        ? "Password must be at least 6 characters long."
+        : "The 'password' field is required."
+    );
+  }
+};
 
 const createUser = async (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
-  if (!name || name.length < 2 || name.length > 30) {
-    const message =
-      name.length < 2
-        ? "The 'name' field must be at least 2 characters long."
-        : "The 'name' field must be 30 characters or fewer.";
-    return res.status(BAD_REQUEST).json({ message });
-  }
-
-  if (!avatar) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "The 'avatar' field is required." });
-  }
-
-  if (!email || !validator.isEmail(email)) {
-    return res.status(BAD_REQUEST).json({
-      message: email
-        ? "Please provide a valid email address."
-        : "The 'email' field is required.",
-    });
-  }
-
-  if (!password || password.length < 6) {
-    return res.status(BAD_REQUEST).json({
-      message: password
-        ? "Password must be at least 6 characters long."
-        : "The 'password' field is required.",
-    });
-  }
-
   try {
-    const hashedPassword = await bcrypt.hash(password, 6);
+    validateUserInput({ name, avatar, email, password });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
       name,
       avatar,
       email,
       password: hashedPassword,
     });
+
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    return res.status(200).json({ data: userResponse });
+    res.status(201).json({ data: userResponse });
   } catch (error) {
     if (error.code === 11000) {
-      return res
-        .status(CONFLICT)
-        .json({ message: "A user with this email already exists." });
+      return next(new ConflictError("A user with this email already exists."));
     }
     if (error.name === "ValidationError") {
-      return res.status(BAD_REQUEST).json({
-        message: "Invalid data provided.",
-      });
+      return next(new BadRequestError("Invalid data provided."));
     }
-    console.error("Error creating user:", error);
-    return next(error);
+    next(error); // Pass unhandled errors to middleware
   }
 };
 
-const getMe = (req, res, next) => {
-  const userId = req.user._id;
+const getMe = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
 
-  User.findById(userId)
-    .select("-password")
-    .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND).json({ message: "User not found." });
-      }
+    if (!user) {
+      throw new NotFoundError("User not found.");
+    }
 
-      return res.status(200).json({ data: user });
-    })
-    .catch((error) => {
-      if (error.name === "CastError") {
-        return res.status(BAD_REQUEST).json({ message: "Invalid user ID." });
-      }
-      console.error("Error fetching user:", error);
-      return next(error);
-    });
+    res.status(200).json({ data: user });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const updateMe = (req, res, next) => {
-  const userId = req.user._id;
+const updateMe = async (req, res, next) => {
   const { name, avatar } = req.body;
 
-  User.findByIdAndUpdate(
-    userId,
-    { $set: { name, avatar } },
-    { new: true, runValidators: true }
-  )
-    .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND).json({ message: "User not found" });
-      }
-      return res.status(200).json({ data: user });
-    })
-    .catch((error) => {
-      if (error.name === "ValidationError") {
-        return res.status(BAD_REQUEST).json({
-          message: "Invalid data provided.",
-        });
-      }
-      console.error("Error updating user:", error);
-      return next(error);
-    });
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, avatar },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundError("User not found.");
+    }
+
+    res.status(200).json({ data: updatedUser });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return next(new BadRequestError("Invalid data provided."));
+    }
+    next(error);
+  }
 };
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(BAD_REQUEST)
-      .json({ message: "Email and password are required." });
+    return next(new BadRequestError("Email and password are required."));
   }
 
   try {
     const user = await User.findOne({ email }).select("+password");
-    if (!user) {
-      return res
-        .status(UNAUTHORIZED)
-        .json({ message: "Incorrect email or password." });
-    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res
-        .status(UNAUTHORIZED)
-        .json({ message: "Incorrect email or password." });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedError("Incorrect email or password.");
     }
-
-    delete user.password;
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
-    return res
+
+    res
       .status(200)
-      .json({ message: "Authentication successful", token, user });
+      .json({ message: "Authentication successful", token, data: user });
   } catch (error) {
-    console.error("Error during login:", error);
-    return next(error);
+    next(error);
   }
 };
 

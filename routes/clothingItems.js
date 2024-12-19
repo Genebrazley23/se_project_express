@@ -16,12 +16,12 @@ router.post(
   auth,
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().required(),
-      weather: Joi.string().required(),
-      imageUrl: Joi.string().required(),
+      name: Joi.string().min(3).max(30).required(),
+      weather: Joi.string().valid("hot", "warm", "cold").required(),
+      imageUrl: Joi.string().uri().required(),
     }),
   }),
-  createItem,
+  createItem
 );
 
 router.get("/", authOptional, getItems);
@@ -29,20 +29,34 @@ router.get("/", authOptional, getItems);
 router.delete(
   "/:itemId",
   auth,
-  celebrate({ params: Joi.object().keys({ itemId: Joi.string().required() }) }),
-  deleteItem,
+  celebrate({
+    params: Joi.object().keys({
+      itemId: Joi.string().length(24).hex().required(),
+    }),
+  }),
+  deleteItem
 );
+
 router.put(
   "/:itemId/likes",
   auth,
-  celebrate({ params: Joi.object().keys({ itemId: Joi.string().required() }) }),
-  likeItem,
+  celebrate({
+    params: Joi.object().keys({
+      itemId: Joi.string().length(24).hex().required(), // Ensured itemId is a 24-char hex string
+    }),
+  }),
+  likeItem
 );
+
 router.delete(
   "/:itemId/likes",
   auth,
-  celebrate({ params: Joi.object().keys({ itemId: Joi.string().required() }) }),
-  dislikeItem,
+  celebrate({
+    params: Joi.object().keys({
+      itemId: Joi.string().length(24).hex().required(),
+    }),
+  }),
+  dislikeItem
 );
 
 module.exports = router;
