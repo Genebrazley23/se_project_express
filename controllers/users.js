@@ -2,13 +2,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const User = require("../models/user");
-const {
-  BadRequestError,
-  NotFoundError,
-  UnauthorizedError,
-  ConflictError,
-} = require("../utils/errors");
+const BadRequestError = require("../utils/errors/BadRequestError");
 const { JWT_SECRET } = require("../utils/config");
+const ConflictError = require("../utils/errors/ConflictError");
+const UnauthorizedError = require("../utils/errors/UnauthorizedError");
+const NotFoundError = require("../utils/errors/NotFoundError");
 
 const validateUserInput = ({ name, avatar, email, password }) => {
   if (!name || name.length < 2 || name.length > 30) {

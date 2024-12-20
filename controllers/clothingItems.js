@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
+const BadRequestError = require("../utils/errors/BadRequestError");
+const NotFoundError = require("../utils/errors/NotFoundError");
+const ForbiddenError = require("../utils/errors/ForbiddenError");
+const InternalServerError = require("../utils/errors/InternalServerError");
+
 const {
   BadRequestError,
   NotFoundError,
@@ -37,7 +42,7 @@ const createItem = async (req, res, next) => {
 const getItems = async (req, res, next) => {
   try {
     const items = await ClothingItem.find();
-    return res.status(200).json({ data: items }); // Ensure to return here
+    return res.status(200).json({ data: items });
   } catch (e) {
     return next(new InternalServerError());
   }
