@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require("celebrate");
 const express = require("express");
-const { auth, authOptional } = require("../middlewares/auth");
+const { auth } = require("../middlewares/auth");
 const {
   createItem,
   getItems,
@@ -24,7 +24,7 @@ router.post(
   createItem
 );
 
-router.get("/", authOptional, getItems);
+router.get("/", getItems);
 
 router.delete(
   "/:itemId",
