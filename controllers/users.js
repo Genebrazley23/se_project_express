@@ -4,9 +4,10 @@ const validator = require("validator");
 const User = require("../models/user");
 const BadRequestError = require("../utils/errors/BadRequestError");
 const { JWT_SECRET } = require("../utils/config");
-const ConflictError = require("../utils/errors/ConflictError");
-const UnauthorizedError = require("../utils/errors/UnauthorizedError");
-const NotFoundError = require("../utils/errors/NotFoundError");
+import BadRequestError from "../utils/errors/BadRequestError.js";
+import ConflictError from "../utils/errors/ConflictError.js";
+import UnauthorizedError from "../utils/errors/UnauthorizedError.js";
+import NotFoundError from "../utils/errors/NotFoundError.js";
 
 const validateUserInput = ({ name, avatar, email, password }) => {
   if (!name || name.length < 2 || name.length > 30) {

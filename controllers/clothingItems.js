@@ -1,16 +1,9 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
-const BadRequestError = require("../utils/errors/BadRequestError");
-const NotFoundError = require("../utils/errors/NotFoundError");
-const ForbiddenError = require("../utils/errors/ForbiddenError");
-const InternalServerError = require("../utils/errors/InternalServerError");
-
-const {
-  BadRequestError,
-  NotFoundError,
-  ForbiddenError,
-  InternalServerError,
-} = require("../utils/errors");
+import BadRequestError from "../utils/errors/BadRequestError.js";
+import NotFoundError from "../utils/errors/NotFoundError.js";
+import InternalServerError from "../utils/errors/InternalServerError.js";
+import ForbiddenError from "../utils/errors/ForbiddenError.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -30,7 +23,7 @@ const createItem = async (req, res, next) => {
       imageUrl,
       owner: req.user._id,
     });
-    return res.status(201).json({ data: item }); // Ensure to return here
+    return res.status(201).json({ data: item });
   } catch (e) {
     if (e.name === "ValidationError") {
       return next(new BadRequestError("Invalid data provided."));
@@ -68,11 +61,11 @@ const deleteItem = async (req, res, next) => {
       );
     }
 
-    await item.remove(); // Avoid extra query by calling `remove` on the document directly
+    await item.remove();
 
     return res
       .status(200)
-      .json({ message: "Item deleted successfully", data: item }); // Ensure to return here
+      .json({ message: "Item deleted successfully", data: item });
   } catch (e) {
     return next(new InternalServerError());
   }

@@ -1,4 +1,4 @@
-const HTTPError = require("./HTTPError");
+import HTTPError from "./HTTPError.js";
 const { CONFLICT } = require("./errors");
 
 class ConflictError extends HTTPError {

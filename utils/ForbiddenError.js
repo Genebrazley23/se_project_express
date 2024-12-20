@@ -1,4 +1,4 @@
-const HTTPError = require("./HTTPError");
+import HTTPError from "./HTTPError.js";
 const { FORBIDDEN } = require("./errors");
 
 class ForbiddenError extends HTTPError {
