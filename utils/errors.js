@@ -1,4 +1,4 @@
-import BadRequestError from "./BadRequestError.js";
+const BadRequestError = require("./BadRequestError");
 const UnauthorizedError = require("./UnauthorizedError");
 const ForbiddenError = require("./ForbiddenError");
 const NotFoundError = require("./NotFoundError");
@@ -11,6 +11,8 @@ const NOT_FOUND = 404;
 const CONFLICT = 409;
 const SERVER_ERROR = 500;
 const SERVER_ERROR_MESSAGE = "An error has occurred on the server";
+
+module.exports = BadRequestError;
 
 module.exports = {
   BadRequestError,

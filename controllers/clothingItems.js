@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingItem");
+const BadRequestError = require("../utils/errors").BadRequestError;
 
 const {
-  BadRequestError,
   NotFoundError,
   ForbiddenError,
   InternalServerError,
@@ -12,13 +12,11 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const createItem = async (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
-
   if (!name || !weather || !imageUrl) {
     return next(
       new BadRequestError("All fields (name, weather, imageUrl) are required.")
     );
   }
-
   try {
     const item = await ClothingItem.create({
       name,
