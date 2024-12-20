@@ -1,10 +1,10 @@
-const HTTPError = require("./HTTPError");
-
 const { CONFLICT } = require("./errors");
 
-class ConflictError extends HTTPError {
+class ConflictError extends Error {
   constructor(message = "Conflict") {
-    super(message, CONFLICT);
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = CONFLICT;
   }
 }
 

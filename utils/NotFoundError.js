@@ -1,10 +1,10 @@
-const HTTPError = require("./HTTPError");
-
 const { NOT_FOUND } = require("./errors");
 
-class NotFoundError extends HTTPError {
+class NotFoundError extends Error {
   constructor(message = "Not Found") {
-    super(message, NOT_FOUND);
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = NOT_FOUND;
   }
 }
 

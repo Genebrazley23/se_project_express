@@ -1,10 +1,10 @@
-const HTTPError = require("./HTTPError");
-
 const { SERVER_ERROR, SERVER_ERROR_MESSAGE } = require("./errors");
 
-class InternalServerError extends HTTPError {
+class InternalServerError extends Error {
   constructor(message = SERVER_ERROR_MESSAGE) {
-    super(message, SERVER_ERROR);
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = SERVER_ERROR;
   }
 }
 

@@ -1,9 +1,10 @@
-const HTTPError = require("./HTTPError");
 const { UNAUTHORIZED } = require("./errors");
 
-class UnauthorizedError extends HTTPError {
+class UnauthorizedError extends Error {
   constructor(message = "Unauthorized") {
-    super(message, UNAUTHORIZED);
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = UNAUTHORIZED;
   }
 }
 
