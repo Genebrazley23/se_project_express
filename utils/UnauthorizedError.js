@@ -1,4 +1,5 @@
-import HTTPError from "./HTTPError.js";
+import HTTPError from "../HTTPError.js";
+
 const { UNAUTHORIZED } = require("./errors");
 
 class UnauthorizedError extends HTTPError {

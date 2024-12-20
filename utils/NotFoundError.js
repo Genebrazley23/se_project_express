@@ -1,4 +1,5 @@
-import HTTPError from "./HTTPError.js";
+import HTTPError from "../HTTPError.js";
+
 const { NOT_FOUND } = require("./errors");
 
 class NotFoundError extends HTTPError {
