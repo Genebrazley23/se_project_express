@@ -1,10 +1,10 @@
-const HTTPError = require("./HTTPError");
-
 const { FORBIDDEN } = require("./errors");
 
-class ForbiddenError extends HTTPError {
+class ForbiddenError extends Error {
   constructor(message = "Forbidden") {
-    super(message, FORBIDDEN);
+    super(message);
+    this.name = this.constructor.name;
+    this.statusCode = FORBIDDEN;
   }
 }
 
