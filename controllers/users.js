@@ -7,6 +7,12 @@ const BadRequestError = require("../utils/errors/BadRequestError.js");
 const ConflictError = require("../utils/errors/ConflictError.js");
 const UnauthorizedError = require("../utils/errors/UnauthorizedError.js");
 const NotFoundError = require("../utils/errors/NotFoundError.js");
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+  ConflictError,
+} = require("../utils/errors");
 
 const validateUserInput = ({ name, avatar, email, password }) => {
   if (!name || name.length < 2 || name.length > 30) {
