@@ -1,4 +1,4 @@
-const BadRequestError = require("./BadRequestError");
+import BadRequestError from "./BadRequestError.js";
 const UnauthorizedError = require("./UnauthorizedError");
 const ForbiddenError = require("./ForbiddenError");
 const NotFoundError = require("./NotFoundError");
