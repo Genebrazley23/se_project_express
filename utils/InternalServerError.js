@@ -1,4 +1,4 @@
-import HTTPError from '../HTTPError.js';
+const HTTPError = require("./HTTPError.js");
 
 const { SERVER_ERROR, SERVER_ERROR_MESSAGE } = require("./errors");
 

@@ -1,4 +1,4 @@
-import HTTPError from "../HTTPError.js";
+const HTTPError = require("./HTTPError.js");
 
 const { BAD_REQUEST } = require("./errors");
 
