@@ -1,4 +1,4 @@
-const HTTPError = require("./HTTPError.js");
+const HTTPError = require("./HTTPError");
 const { UNAUTHORIZED } = require("./errors");
 
 class UnauthorizedError extends HTTPError {

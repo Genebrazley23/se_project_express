@@ -1,4 +1,4 @@
-const HTTPError = require("./HTTPError.js");
+const HTTPError = require("./HTTPError");
 
 const { NOT_FOUND } = require("./errors");
 

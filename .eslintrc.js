@@ -24,12 +24,5 @@ module.exports = {
     "no-console": "off",
     "no-underscore-dangle": ["error", { allow: ["_id"] }],
     "import/newline-after-import": "off",
-    "import/extensions": [
-      "error",
-      "always",
-      {
-        js: "always",
-      },
-    ],
   },
 };

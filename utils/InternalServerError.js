@@ -1,4 +1,4 @@
-const HTTPError = require("./HTTPError.js");
+const HTTPError = require("./HTTPError");
 
 const { SERVER_ERROR, SERVER_ERROR_MESSAGE } = require("./errors");
 
