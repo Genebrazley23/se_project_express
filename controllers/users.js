@@ -126,7 +126,7 @@ const login = async (req, res, next) => {
 
     return res
       .status(200)
-      .json({ message: "Authentication successful", token, data: user });
+      .json({ message: "Authentication successful", token });
   } catch (error) {
     return next(error);
   }

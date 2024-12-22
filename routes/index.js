@@ -4,7 +4,7 @@ const router = express.Router();
 const { login, createUser } = require("../controllers/users");
 const userRoutes = require("./users");
 const clothingItem = require("./clothingItems");
-const { NOT_FOUND } = require("../utils/errors");
+const NotFoundError = require("../errors/NotFoundError");
 
 const loginSchema = {
   body: Joi.object().keys({
@@ -18,7 +18,7 @@ const signupSchema = {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30).required(),
-    avatar: Joi.string().uri().optional(),
+    avatar: Joi.string().uri().required(),
   }),
 };
 
@@ -26,13 +26,9 @@ router.post("/signin", celebrate(loginSchema), login);
 router.post("/signup", celebrate(signupSchema), createUser);
 router.use("/users", userRoutes);
 router.use("/items", clothingItem);
-
 router.use((req, res, next) => {
-  const error = new Error("Route not found");
-  error.statusCode = NOT_FOUND;
-  next(error);
+  next(new NotFoundError("Route not found"));
 });
-
 router.use(errors());
 
 module.exports = router;
