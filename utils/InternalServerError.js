@@ -1,9 +1,9 @@
-const { SERVER_ERROR, SERVER_ERROR_MESSAGE } = require("./errors");
+const { SERVER_ERROR, SERVER_ERROR_MESSAGE } = require("./constants");
 
 class InternalServerError extends Error {
   constructor(message = SERVER_ERROR_MESSAGE) {
     super(message);
-    this.name = this.constructor.name;
+    this.name = "InternalServerError";
     this.statusCode = SERVER_ERROR;
   }
 }
