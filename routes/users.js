@@ -2,11 +2,8 @@ const { celebrate, Joi } = require("celebrate");
 const express = require("express");
 const { getMe, updateMe } = require("../controllers/users");
 const { auth } = require("../middlewares/auth");
-
 const router = express.Router();
-
 router.get("/me", auth, getMe);
-
 router.patch(
   "/me",
   auth,
@@ -18,5 +15,4 @@ router.patch(
   }),
   updateMe
 );
-
 module.exports = router;

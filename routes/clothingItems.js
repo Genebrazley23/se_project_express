@@ -8,9 +8,7 @@ const {
   likeItem,
   dislikeItem,
 } = require("../controllers/clothingItems");
-
 const router = express.Router();
-
 router.post(
   "/",
   auth,
@@ -23,9 +21,7 @@ router.post(
   }),
   createItem
 );
-
 router.get("/", getItems);
-
 router.delete(
   "/:itemId",
   auth,
@@ -36,7 +32,6 @@ router.delete(
   }),
   deleteItem
 );
-
 router.put(
   "/:itemId/likes",
   auth,
@@ -47,7 +42,6 @@ router.put(
   }),
   likeItem
 );
-
 router.delete(
   "/:itemId/likes",
   auth,
@@ -58,5 +52,4 @@ router.delete(
   }),
   dislikeItem
 );
-
 module.exports = router;

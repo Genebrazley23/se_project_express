@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-
 const clothingItemSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -41,5 +40,4 @@ const clothingItemSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
 module.exports = mongoose.model("ClothingItem", clothingItemSchema);
